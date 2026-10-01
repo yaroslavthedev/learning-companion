@@ -1,0 +1,81 @@
+# Learning Companion — CLAUDE.md
+
+Django app: users set learning goals, log study sessions, attach resources,
+and get AI-generated progress summaries and next steps.
+
+The code is written entirely by an AI agent. A human tech lead approves plans
+and reviews PRs. Follow the pipeline below; don't skip checkpoints.
+
+## Stack (fixed — do not add or swap technologies without tech-lead approval)
+
+- Python 3.12, managed by **uv** (never use system `python3`/`pip`)
+- Django 5.2 LTS, server-rendered templates + Pico.css (no JS framework)
+- PostgreSQL everywhere: dev, tests, CI and prod (no SQLite)
+- pytest + pytest-django + factory_boy; ruff for lint + format
+- `openai` SDK for AI features; mocked in all tests
+- django-environ for config; gunicorn + whitenoise in Docker; GitHub Actions CI
+
+## Commands
+
+> Status: planned. Verify and update them in ticket #1 (scaffolding).
+
+```bash
+uv sync                                   # install dependencies
+docker compose up -d db                   # start local Postgres
+uv run python manage.py migrate           # apply migrations
+uv run python manage.py runserver         # http://127.0.0.1:8000
+uv run python manage.py makemigrations    # after any model change
+uv run pytest                             # all tests
+uv run pytest path/to/test_file.py -k name  # single test
+uv run ruff check . --fix && uv run ruff format .
+```
+
+## Architecture
+
+```
+config/          settings.py (reads .env via django-environ), urls.py
+accounts/        signup, login/logout (django.contrib.auth), Profile (1:1 User)
+learning/        Goal, LearningSession, Resource, Tag + their CRUD views
+learning/services/ai.py   the only module that talks to OpenAI
+dashboard/       aggregation queries + dashboard page
+templates/       base.html + per-app templates
+```
+
+### Data model (target)
+
+- `Profile`: user (1:1), name, cohort, focus_areas (M2M Tag)
+- `Tag`: owner (FK User), name; unique per (owner, name)
+- `Goal`: owner (FK User), title, description, status (planned / in_progress / done), created_at, updated_at
+- `LearningSession`: goal (FK), date, duration_minutes, notes, tags (M2M Tag)
+- `Resource`: goal (FK), url, title, type (article / video / repo / doc)
+
+Ownership: every row belongs to a user, either directly (`owner`) or through `goal__owner`.
+
+## Conventions
+
+- **Data scoping:** every queryset in a view is filtered by `request.user`.
+  Another user's object → 404, never 403 and never the data. See `.claude/rules/`.
+- Views: Django class-based generic views (ListView, CreateView, ...) with
+  `LoginRequiredMixin`; scoping goes in `get_queryset()`.
+- Business logic and queries live in models/managers/services, not templates.
+- Secrets only via env vars (`.env`, documented in `.env.example`).
+- Tests sit next to the code: `<app>/tests/test_*.py`. Use factories, not fixtures files.
+- Commit messages: imperative mood, reference the issue (`Add goal CRUD (#3)`).
+
+## Workflow (AI factory)
+
+Board: https://github.com/users/yaroslavthedev/projects/1
+Columns: Backlog → Ready → In Progress → Review → Done
+
+1. `/next-ticket` takes the top **Ready** issue → In Progress, branch `feat/<n>-<slug>`
+2. **Plan** (skill `planning`) → STOP for tech-lead approval
+3. **Tests red** (skill `tdd-implementation`) → show test list → STOP for approval
+4. **Code green + refactor**; hooks run ruff + pytest automatically
+5. **Self-review** (skill `code-review`) → PR → issue to Review
+6. Tech lead reviews; after merge: update this file, issue → Done
+
+## Keeping this file current
+
+After every feature, update **Commands**, **Architecture** and **Data model**
+to match reality, in the same PR. Keep the file short: rules belong in
+`.claude/rules/`, step-by-step procedures in `.claude/skills/`.
