@@ -40,4 +40,4 @@ Precondition: the plan is approved and you are on the ticket branch
    must all pass.
 3. Commit: `refactor: <what> (#<n>)` (skip this if nothing changed).
 
-Then continue with the `code-review` skill.
+Then continue with the `self-review` skill.

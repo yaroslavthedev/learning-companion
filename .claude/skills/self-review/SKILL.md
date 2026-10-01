@@ -1,9 +1,9 @@
 ---
-name: code-review
+name: self-review
 description: Self-review the ticket branch diff against a checklist, fix findings, update CLAUDE.md, open the PR and hand the tech lead a manual review checklist. Use after TDD implementation is green.
 ---
 
-# Code review (self-review + PR)
+# Self-review + PR
 
 ## 1. Automated checks (all must pass)
 

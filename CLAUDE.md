@@ -71,7 +71,7 @@ Columns: Backlog → Ready → In Progress → Review → Done
 2. **Plan** (skill `planning`) → STOP for tech-lead approval
 3. **Tests red** (skill `tdd-implementation`) → show test list → STOP for approval
 4. **Code green + refactor**; hooks run ruff + pytest automatically
-5. **Self-review + update this file** (skill `code-review`) → PR → issue to Review → STOP
+5. **Self-review + update this file** (skill `self-review`) → PR → issue to Review → STOP
 6. Tech lead reviews. Only on explicit "merge": skill `finish-ticket`
    (squash merge, issue → Done, retro with pipeline improvements)
 
