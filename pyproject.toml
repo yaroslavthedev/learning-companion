@@ -28,3 +28,7 @@ extend-exclude = ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "DJ"]
+
+[tool.ruff.lint.per-file-ignores]
+# Django's dotted password-validator paths can't be wrapped
+"config/settings.py" = ["E501"]
