@@ -57,7 +57,7 @@ Closes #<n>
 <anything the tech lead should look at closely, known limitations>
 ```
 
-Then move the issue to **Review** on the board.
+Then move the issue: `.claude/scripts/board.sh move <n> Review`.
 
 ## 5. Hand-off (checkpoint 4)
 

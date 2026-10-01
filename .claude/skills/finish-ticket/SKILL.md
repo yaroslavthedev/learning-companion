@@ -11,7 +11,7 @@ Run this only when the tech lead has explicitly said to merge (e.g. "merge").
 1. `gh pr checks <pr>`: CI must be green. If it's red, stop and report.
 2. `gh pr merge <pr> --squash --delete-branch`
 3. `git switch main && git pull --ff-only`
-4. Move the issue to **Done** on the board.
+4. `.claude/scripts/board.sh move <n> Done` (refuses if the issue is still open).
 5. **Retro.** Answer briefly:
    - What did the tech lead catch in review that the pipeline missed?
    - Which rule, hook or skill change would have caught it automatically?

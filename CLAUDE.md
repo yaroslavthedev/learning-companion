@@ -76,6 +76,8 @@ Columns: Backlog → Ready → In Progress → Review → Done
    (squash merge, issue → Done, retro with pipeline improvements)
 
 The agent never merges a PR or moves an issue to Ready on its own.
+Approvals are stored as issue labels `plan-approved` / `tests-approved`.
+Board helper: `.claude/scripts/board.sh list|next|current|move <n> <status>`.
 
 ## Keeping this file current
 
