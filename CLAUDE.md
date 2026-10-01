@@ -17,31 +17,45 @@ and reviews PRs. Follow the pipeline below; don't skip checkpoints.
 
 ## Commands
 
-> Status: planned. Verify and update them in ticket #1 (scaffolding).
+Verified in #2.
 
 ```bash
+cp -n .env.example .env                   # once: local dev env (never commit .env)
 uv sync                                   # install dependencies
-docker compose up -d db                   # start local Postgres
+docker compose up -d --wait db            # local Postgres 16 on host port 5433
 uv run python manage.py migrate           # apply migrations
 uv run python manage.py runserver         # http://127.0.0.1:8000
 uv run python manage.py makemigrations    # after any model change
-uv run pytest                             # all tests
+uv run pytest                             # all tests (needs the db container)
 uv run pytest path/to/test_file.py -k name  # single test
 uv run ruff check . --fix && uv run ruff format .
 ```
 
+Env vars (see `.env.example`): `SECRET_KEY` (required), `DEBUG` (default False),
+`ALLOWED_HOSTS` (comma-separated), `DATABASE_URL` (required),
+`POSTGRES_USER/PASSWORD/DB` (docker compose), `DJANGO_ENV_FILE` (optional,
+alternative env file; settings tests use it to ignore `.env`).
+Host port 5432 is taken by another project on the dev machine, so we use 5433.
+
 ## Architecture
 
 ```
-config/          settings.py (reads .env via django-environ), urls.py
-accounts/        signup, login/logout (django.contrib.auth), Profile (1:1 User)
+config/          settings.py (reads env / .env via django-environ), urls.py
+config/tests/    settings tests (run Django in a subprocess with a clean env)
+accounts/        custom User (AbstractUser, AUTH_USER_MODEL); later: signup, login, Profile
+core/            site-wide pages: HomeView at / (name "home")
+templates/       base.html (Pico.css from CDN) + <app>/ templates
+# planned:
 learning/        Goal, LearningSession, Resource, Tag + their CRUD views
 learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
-templates/       base.html + per-app templates
 ```
 
-### Data model (target)
+### Data model
+
+Now: `accounts.User` (AbstractUser, no extra fields). Test factory: `accounts.tests.factories.UserFactory`.
+
+Target:
 
 - `Profile`: user (1:1), name, cohort, focus_areas (M2M Tag)
 - `Tag`: owner (FK User), name; unique per (owner, name)
