@@ -1,0 +1,15 @@
+[
+  {"cmd": "git push --force", "expect": "deny"},
+  {"cmd": "git push -f origin feat/1", "expect": "deny"},
+  {"cmd": "git push --force-with-lease", "expect": "deny"},
+  {"cmd": "git push origin main", "expect": "deny"},
+  {"cmd": "git push -u origin HEAD", "expect": "allow"},
+  {"cmd": "git push origin feature-main-thing", "expect": "allow"},
+  {"cmd": "git add -f .env", "expect": "deny"},
+  {"cmd": "git add --force .", "expect": "deny"},
+  {"cmd": "git add -A && git commit -m x", "expect": "allow"},
+  {"cmd": "gh pr merge 5 --squash", "expect": "ask"},
+  {"cmd": "cat > body.md <<EOF\n- deny `git add -f`; and git push --force is blocked on main\nEOF\ngh pr create --body-file body.md", "expect": "allow"},
+  {"cmd": "cat > x.md <<'EOF'\nharmless text\nEOF\ngit push --force", "expect": "deny"},
+  {"cmd": "ls -la", "expect": "allow"}
+]
