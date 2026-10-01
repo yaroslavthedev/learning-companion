@@ -1,1 +1,9 @@
-# Create your models here.
+from django.contrib.auth.models import AbstractUser
+
+
+class User(AbstractUser):
+    class Meta(AbstractUser.Meta):
+        ordering = ["username"]
+
+    def __str__(self):
+        return self.username
