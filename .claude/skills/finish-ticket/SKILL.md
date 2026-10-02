@@ -9,7 +9,12 @@ disable-model-invocation: true
 Run this only when the tech lead has explicitly said to merge (e.g. "merge").
 
 1. `gh pr checks <pr>`: CI must be green. If it's red, stop and report.
-2. `gh pr merge <pr> --squash --delete-branch`
+   If no checks are configured, run the local gate instead:
+   `uv run pytest -q`, `uv run ruff check .`, `uv run ruff format --check .`,
+   `uv run python manage.py makemigrations --check --dry-run`. Any failure → stop.
+2. `gh pr merge <pr> --squash --delete-branch --subject "<issue title> (#<n>)"`
+   (without `--subject`, GitHub appends the PR number to a title that already
+   has the issue number: `... (#2) (#10)`)
 3. `git switch main && git pull --ff-only`
 4. `.claude/scripts/board.sh move <n> Done` (refuses if the issue is still open).
 5. **Retro.** Answer briefly:
