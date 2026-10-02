@@ -30,6 +30,11 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
+# OpenAI (learning/services/ai.py). No key → AI buttons show a friendly notice.
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+# `or`: an empty `OPENAI_MODEL=` line in .env also means the default.
+OPENAI_MODEL = env("OPENAI_MODEL", default="") or "gpt-4o-mini"
+
 
 # Application definition
 

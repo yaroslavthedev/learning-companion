@@ -16,6 +16,38 @@
       <a href="{% url 'goal-list' %}">Back to goals</a>
     </footer>
   </article>
+  <section id="ai">
+    <h2>AI coach</h2>
+    <div role="group">
+      <form method="post" action="{% url 'goal-summary' goal.pk %}">
+        {% csrf_token %}
+        <button type="submit">Generate summary</button>
+      </form>
+      <form method="post" action="{% url 'goal-next-steps' goal.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="secondary">Suggest next steps</button>
+      </form>
+    </div>
+    {% if ai_error %}
+      <p><mark>{{ ai_error }}</mark></p>
+    {% endif %}
+    {% if ai_summary %}
+      <article>
+        <header>Progress summary</header>
+        <p>{{ ai_summary|linebreaksbr }}</p>
+      </article>
+    {% endif %}
+    {% if ai_next_steps %}
+      <article>
+        <header>Next steps</header>
+        <ol>
+          {% for step in ai_next_steps %}
+            <li>{{ step }}</li>
+          {% endfor %}
+        </ol>
+      </article>
+    {% endif %}
+  </section>
   <section>
     <nav>
       <ul><li><h2>Sessions</h2></li><li>Total: {{ goal.total_hours|floatformat:"-1" }} h</li></ul>

@@ -76,3 +76,20 @@ def test_settings_load_without_env_file(tmp_path):
     )
 
     assert result.returncode == 0, result.stderr
+
+
+def test_openai_settings_default_when_unset(tmp_path):
+    assert print_setting(tmp_path, "OPENAI_API_KEY") == ""
+    assert print_setting(tmp_path, "OPENAI_MODEL") == "gpt-4o-mini"
+
+
+def test_openai_model_empty_value_falls_back_to_default(tmp_path):
+    # .env.example ships `OPENAI_MODEL=` with no value.
+    assert print_setting(tmp_path, "OPENAI_MODEL", OPENAI_MODEL="") == "gpt-4o-mini"
+
+
+def test_openai_settings_read_from_env(tmp_path):
+    env = {"OPENAI_API_KEY": "test-key", "OPENAI_MODEL": "test-model"}
+
+    assert print_setting(tmp_path, "OPENAI_API_KEY", **env) == "test-key"
+    assert print_setting(tmp_path, "OPENAI_MODEL", **env) == "test-model"

@@ -41,7 +41,8 @@ workflow (dummy values, no repository secrets, no `.env`);
 Env vars (see `.env.example`): `SECRET_KEY` (required), `DEBUG` (default False),
 `ALLOWED_HOSTS` (comma-separated), `DATABASE_URL` (required),
 `POSTGRES_USER/PASSWORD/DB` (docker compose), `DJANGO_ENV_FILE` (optional,
-alternative env file; settings tests use it to ignore `.env`).
+alternative env file; settings tests use it to ignore `.env`), `OPENAI_API_KEY`
+(optional; empty → AI buttons say "not configured"), `OPENAI_MODEL` (empty → `gpt-4o-mini`).
 Host port 5432 is taken by another project on the dev machine, so we use 5433.
 
 ## Architecture
@@ -64,11 +65,18 @@ learning/        Goal + CRUD at /goals/ (names goal-list/-create/-detail/-update
                  Resource: POST-only /goals/<goal_pk>/resources/ (resource-create; inline form on
                  goal detail, errors re-render goal_detail.html via goal_detail_context()),
                  /resources/<pk>/delete/ (resource-delete, confirm page); no list/detail/edit
+                 AI: POST-only /goals/<pk>/summary/ + /next-steps/ (goal-summary/-next-steps,
+                 GoalAIView base): scoped get_object() first, then re-render goal_detail.html
+                 with ai_summary / ai_next_steps / ai_error; nothing is saved
+learning/services/ai.py   the only module that talks to OpenAI: summarize_goal(goal),
+                 suggest_next_steps(goal) (≤ 3, JSON array or list lines); every failure
+                 → AIUnavailable with a fixed user-safe message (never OpenAI's text)
 templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates
                  (learning/_session_table.html shared by session list + goal detail);
                  registration/login.html for LoginView
+conftest.py      (root) every test gets OPENAI_API_KEY="test-key"; httpx2.Client.send is
+                 blocked, so an unmocked OpenAI call fails the test
 # planned:
-learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
 ```
 
@@ -102,6 +110,10 @@ factory_boy resolves `Meta.model` when the factory class is defined, so a factor
 not-yet-existing model breaks collection of every module importing that factories file.
 In red, put it in a temporary module (e.g. `session_factories.py`); move it into
 `factories.py` in green once the model exists.
+OpenAI in tests: fixture `fake_openai` (`learning/tests/conftest.py`) patches
+`learning.services.ai.OpenAI`: `.reply(text)`, `.fail(error)`, `.called`, `.sent_text()`;
+error builders `connection_error()`, `timeout_error()`, `auth_error()`, `openai_status_error()`.
+The SDK (openai 3.x) uses `httpx2`, not `httpx`.
 
 Ownership: every row belongs to a user, either directly (`owner`) or through `goal__owner`.
 
