@@ -6,12 +6,13 @@ from django.db.models import Count, Sum
 from django.db.models.functions import TruncWeek
 from django.utils import timezone
 
+from accounts.models import User
 from learning.models import Goal, LearningSession
 
 WEEKS = 8
 
 
-def _with_percent(rows, key):
+def _with_percent(rows: list[dict], key: str) -> list[dict]:
     """Add "percent" (0..100, of the largest `key` value) to every row."""
     largest = max((row[key] for row in rows), default=0)
     for row in rows:
@@ -19,7 +20,7 @@ def _with_percent(rows, key):
     return rows
 
 
-def goals_per_status(user):
+def goals_per_status(user: User) -> list[dict]:
     """[{"label", "count", "percent"}, ...] for every Goal.Status, zeros included."""
     counts = dict(
         Goal.objects.for_user(user)
@@ -34,7 +35,7 @@ def goals_per_status(user):
     return _with_percent(rows, "count")
 
 
-def hours_per_tag(user):
+def hours_per_tag(user: User) -> list[dict]:
     """[{"name", "hours", "percent"}, ...], most hours first; untagged sessions skipped.
 
     A session with several tags counts for each of them."""
@@ -52,7 +53,7 @@ def hours_per_tag(user):
     return _with_percent(rows, "hours")
 
 
-def hours_per_week(user, today=None):
+def hours_per_week(user: User, today: datetime.date | None = None) -> list[dict]:
     """8 rows {"week_start", "label", "hours", "percent"}: the current ISO week and
     the 7 before it, oldest first; weeks without sessions have 0 hours."""
     today = today or timezone.localdate()
@@ -70,7 +71,6 @@ def hours_per_week(user, today=None):
         .annotate(week=TruncWeek("date"))
         .values("week")
         .annotate(minutes=Sum("duration_minutes"))
-        .order_by()
         .values_list("week", "minutes")
     )
     rows = [

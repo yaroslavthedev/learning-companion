@@ -3,6 +3,7 @@ import datetime
 import pytest
 
 from accounts.tests.factories import UserFactory
+from dashboard.services import goals_per_status, hours_per_tag, hours_per_week
 from learning.tests.factories import GoalFactory, LearningSessionFactory
 from tags.tests.factories import TagFactory
 
@@ -24,8 +25,6 @@ def session(owner, minutes, date=TODAY, tags=()):
 
 
 def test_goals_per_status_lists_all_statuses_with_zero():
-    from dashboard.services import goals_per_status
-
     rows = goals_per_status(UserFactory())
 
     assert [(row["label"], row["count"]) for row in rows] == [
@@ -36,8 +35,6 @@ def test_goals_per_status_lists_all_statuses_with_zero():
 
 
 def test_goals_per_status_counts_each_status():
-    from dashboard.services import goals_per_status
-
     user = UserFactory()
     GoalFactory.create_batch(2, owner=user, status="planned")
     GoalFactory(owner=user, status="done")
@@ -52,8 +49,6 @@ def test_goals_per_status_counts_each_status():
 
 
 def test_goals_per_status_ignores_other_users_goals():
-    from dashboard.services import goals_per_status
-
     user = UserFactory()
     GoalFactory(owner=user, status="planned")
     GoalFactory.create_batch(3, owner=UserFactory(), status="planned")
@@ -64,8 +59,6 @@ def test_goals_per_status_ignores_other_users_goals():
 
 
 def test_percent_is_relative_to_max_value():
-    from dashboard.services import goals_per_status
-
     user = UserFactory()
     GoalFactory.create_batch(2, owner=user, status="planned")
     GoalFactory(owner=user, status="in_progress")
@@ -76,16 +69,12 @@ def test_percent_is_relative_to_max_value():
 
 
 def test_percent_is_zero_when_all_values_are_zero():
-    from dashboard.services import goals_per_status
-
     rows = goals_per_status(UserFactory())
 
     assert [row["percent"] for row in rows] == [0, 0, 0]
 
 
 def test_goals_per_status_runs_one_query(django_assert_num_queries):
-    from dashboard.services import goals_per_status
-
     user = UserFactory()
     GoalFactory(owner=user, status="planned")
     GoalFactory(owner=user, status="done")
@@ -98,8 +87,6 @@ def test_goals_per_status_runs_one_query(django_assert_num_queries):
 
 
 def test_hours_per_tag_sums_sessions_per_tag():
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     docker = TagFactory(owner=user, name="docker")
     session(user, 60, tags=[docker])
@@ -111,8 +98,6 @@ def test_hours_per_tag_sums_sessions_per_tag():
 
 
 def test_hours_per_tag_counts_session_for_each_of_its_tags():
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     docker = TagFactory(owner=user, name="docker")
     python = TagFactory(owner=user, name="python")
@@ -127,8 +112,6 @@ def test_hours_per_tag_counts_session_for_each_of_its_tags():
 
 
 def test_hours_per_tag_sorted_by_hours_descending():
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     css = TagFactory(owner=user, name="css")
     django = TagFactory(owner=user, name="django")
@@ -144,8 +127,6 @@ def test_hours_per_tag_sorted_by_hours_descending():
 
 
 def test_hours_per_tag_skips_untagged_sessions():
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     session(user, 60)
 
@@ -153,8 +134,6 @@ def test_hours_per_tag_skips_untagged_sessions():
 
 
 def test_hours_per_tag_ignores_other_users_sessions():
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     other = UserFactory()
     session(user, 30, tags=[TagFactory(owner=user, name="docker")])
@@ -167,8 +146,6 @@ def test_hours_per_tag_ignores_other_users_sessions():
 
 
 def test_hours_per_tag_runs_one_query(django_assert_num_queries):
-    from dashboard.services import hours_per_tag
-
     user = UserFactory()
     docker = TagFactory(owner=user, name="docker")
     python = TagFactory(owner=user, name="python")
@@ -183,8 +160,6 @@ def test_hours_per_tag_runs_one_query(django_assert_num_queries):
 
 
 def test_hours_per_week_returns_8_weeks_with_zeros_oldest_first():
-    from dashboard.services import hours_per_week
-
     rows = hours_per_week(UserFactory(), today=TODAY)
 
     assert [row["label"] for row in rows] == [
@@ -203,8 +178,6 @@ def test_hours_per_week_returns_8_weeks_with_zeros_oldest_first():
 
 
 def test_hours_per_week_sunday_and_monday_fall_into_different_weeks():
-    from dashboard.services import hours_per_week
-
     user = UserFactory()
     session(user, 60, date=datetime.date(2026, 9, 27))  # Sunday, W39
     session(user, 30, date=datetime.date(2026, 9, 28))  # Monday, W40
@@ -218,8 +191,6 @@ def test_hours_per_week_sunday_and_monday_fall_into_different_weeks():
 
 
 def test_hours_per_week_ignores_sessions_older_than_8_weeks():
-    from dashboard.services import hours_per_week
-
     user = UserFactory()
     session(user, 60, date=datetime.date(2026, 8, 9))  # Sunday, W32
     session(user, 30, date=datetime.date(2026, 8, 10))  # Monday, W33
@@ -231,8 +202,6 @@ def test_hours_per_week_ignores_sessions_older_than_8_weeks():
 
 
 def test_hours_per_week_ignores_sessions_after_current_week():
-    from dashboard.services import hours_per_week
-
     user = UserFactory()
     session(user, 60, date=datetime.date(2026, 10, 5))  # Monday, W41
 
@@ -242,8 +211,6 @@ def test_hours_per_week_ignores_sessions_after_current_week():
 
 
 def test_hours_per_week_ignores_other_users_sessions():
-    from dashboard.services import hours_per_week
-
     user = UserFactory()
     session(user, 30)
     session(UserFactory(), 600)
@@ -255,8 +222,6 @@ def test_hours_per_week_ignores_other_users_sessions():
 
 
 def test_hours_per_week_runs_one_query(django_assert_num_queries):
-    from dashboard.services import hours_per_week
-
     user = UserFactory()
     session(user, 60, date=datetime.date(2026, 9, 1))
     session(user, 30, date=datetime.date(2026, 9, 28))
