@@ -5,6 +5,8 @@ from learning.views import (
     GoalDeleteView,
     GoalDetailView,
     GoalListView,
+    GoalNextStepsView,
+    GoalSummaryView,
     GoalUpdateView,
     ResourceCreateView,
     ResourceDeleteView,
@@ -20,6 +22,12 @@ urlpatterns = [
     path("goals/<int:pk>/", GoalDetailView.as_view(), name="goal-detail"),
     path("goals/<int:pk>/edit/", GoalUpdateView.as_view(), name="goal-update"),
     path("goals/<int:pk>/delete/", GoalDeleteView.as_view(), name="goal-delete"),
+    path("goals/<int:pk>/summary/", GoalSummaryView.as_view(), name="goal-summary"),
+    path(
+        "goals/<int:pk>/next-steps/",
+        GoalNextStepsView.as_view(),
+        name="goal-next-steps",
+    ),
     path(
         "goals/<int:goal_pk>/resources/",
         ResourceCreateView.as_view(),

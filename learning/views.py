@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -7,10 +7,13 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,
+    View,
 )
+from django.views.generic.detail import SingleObjectMixin
 
 from learning.forms import GoalForm, LearningSessionForm, ResourceForm
 from learning.models import Goal, LearningSession, Resource
+from learning.services import ai
 
 
 class OwnGoalMixin(LoginRequiredMixin):
@@ -60,6 +63,39 @@ def goal_detail_context(goal, resource_form=None):
 class GoalDetailView(OwnGoalMixin, DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**goal_detail_context(self.object), **kwargs)
+
+
+class GoalAIView(OwnGoalMixin, SingleObjectMixin, View):
+    """POST-only AI action: the goal page again, with the reply or a notice.
+
+    get_object() is scoped, so another user's goal is a 404 before any call."""
+
+    template_name = "learning/goal_detail.html"
+    http_method_names = ["post"]
+
+    def ask(self, goal):
+        raise NotImplementedError
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            result = self.ask(self.object)
+        except ai.AIUnavailable as error:
+            result = {"ai_error": str(error)}
+        return render(request, self.template_name, self.get_context_data(**result))
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**goal_detail_context(self.object), **kwargs)
+
+
+class GoalSummaryView(GoalAIView):
+    def ask(self, goal):
+        return {"ai_summary": ai.summarize_goal(goal)}
+
+
+class GoalNextStepsView(GoalAIView):
+    def ask(self, goal):
+        return {"ai_next_steps": ai.suggest_next_steps(goal)}
 
 
 class GoalCreateView(OwnGoalMixin, CreateView):
