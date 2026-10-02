@@ -19,3 +19,8 @@ A user must never see, change or even detect another user's data.
 - AI prompts and dashboard aggregations use the same scoped querysets.
 - Every detail / update / delete view has a test where user B requests user A's
   object and gets 404. Every list view has a test that B doesn't see A's rows.
+- Rows linking two user-owned objects (session ↔ tags, session ↔ goal) must
+  share one owner. Enforce it wherever the link can be set: app forms *and* admin.
+- Admin for user-owned models: FK/M2M fields pointing at other user-owned
+  models are read-only or use `autocomplete_fields`; never a plain picker of
+  every user's rows. Add `list_select_related` for FKs in `list_display`.
