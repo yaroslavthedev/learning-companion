@@ -60,3 +60,11 @@ Goal: the tech lead can approve or correct the approach *before* any code exists
 - New GitHub Action → confirm the exact tag exists before planning it:
   `gh api repos/<owner>/<repo>/git/ref/tags/<tag>`. Some actions (setup-uv ≥ v8)
   publish no moving major tags, so `@vN` fails at "Set up job".
+- New dependency → check the version it resolves to and its transitive deps
+  before naming its API in the plan, without installing it:
+  `echo <pkg> | uv pip compile - --no-header -q` (e.g. openai 3.x uses `httpx2`,
+  not `httpx`).
+- Call to an external service → plan timeout × retries (SDKs retry by default)
+  against the gunicorn worker timeout (30 s), and test the client settings.
+- Every open question carries a proposed default. Approval without answers
+  means the defaults: write them on the issue when adding `plan-approved`.

@@ -60,6 +60,15 @@ if [[ "$cmd" =~ (^|[;\&\|\(]|$'\n')[[:space:]]*(/[^[:space:]]*/)?(python3?|pip3?
   decide deny "System python/pip is forbidden. Use \`uv run python\` (dependencies: \`uv add\`, only if in the approved plan); for file edits use the Edit tool."
 fi
 
+# 5b. `rm` is aliased to `rm -i` in the dev shell: without -f it waits for an
+# answer (hangs the call) or silently deletes nothing. `/bin/rm` and `git rm` are fine.
+while IFS= read -r part; do
+  if [[ "$part" =~ ^[[:space:]]*rm([[:space:]]|$) ]] \
+    && ! [[ "$part" =~ [[:space:]](-[a-zA-Z]*f[a-zA-Z]*|--force)([[:space:]]|$) ]]; then
+    decide deny "\`rm\` is aliased to \`rm -i\` here and would hang. Use \`rm -f\`, \`/bin/rm\` or \`git rm\`."
+  fi
+done < <(tr ';&|()' '\n' <<<"$cmd")
+
 # 6. Secret scan before any commit: changed + new untracked files.
 if [[ "$cmd" =~ git[[:space:]]+commit ]]; then
   pattern='sk-[A-Za-z0-9_-]{20,}|(api[_-]?key|secret[_-]?key|password|token)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{16,}["'"'"']'
