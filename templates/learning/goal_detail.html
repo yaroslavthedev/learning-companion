@@ -27,4 +27,34 @@
       <p>No sessions yet.</p>
     {% endif %}
   </section>
+  <section id="resources">
+    <h2>Resources</h2>
+    {% for heading, resources in resource_groups %}
+      <h3>{{ heading }}</h3>
+      <ul>
+        {% for resource in resources %}
+          <li>
+            <mark>{{ resource.get_kind_display }}</mark>
+            <a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer">{{ resource.title }}</a>
+            · <a href="{% url 'resource-delete' resource.pk %}">Delete</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% empty %}
+      <p>No resources yet.</p>
+    {% endfor %}
+    <form method="post" action="{% url 'resource-create' goal.pk %}">
+      {% csrf_token %}
+      <fieldset role="group">
+        {{ resource_form.title }}
+        {{ resource_form.url }}
+        {{ resource_form.kind }}
+        <button type="submit">Add resource</button>
+      </fieldset>
+      {% for field in resource_form %}
+        {% for error in field.errors %}<small>{{ field.label }}: {{ error }}</small>{% endfor %}
+      {% endfor %}
+      {{ resource_form.non_field_errors }}
+    </form>
+  </section>
 {% endblock %}

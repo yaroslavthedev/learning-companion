@@ -19,3 +19,13 @@ class LearningSessionFactory(factory.django.DjangoModelFactory):
     goal = factory.SubFactory(GoalFactory)
     duration_minutes = 30
     notes = ""
+
+
+class ResourceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "learning.Resource"
+
+    goal = factory.SubFactory(GoalFactory)
+    title = factory.Sequence(lambda n: f"Resource {n}")
+    url = factory.Sequence(lambda n: f"https://example.com/{n}")
+    kind = "article"

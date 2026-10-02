@@ -3,8 +3,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.tests.factories import UserFactory
 from learning.models import Resource
-from learning.tests.factories import GoalFactory
-from learning.tests.resource_factories import ResourceFactory
+from learning.tests.factories import GoalFactory, ResourceFactory
 
 pytestmark = pytest.mark.django_db
 
