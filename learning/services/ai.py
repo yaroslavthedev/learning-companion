@@ -58,7 +58,11 @@ def suggest_next_steps(goal: Goal) -> list[str]:
 def ask(instructions: str, prompt: str) -> str:
     if not settings.OPENAI_API_KEY:
         raise AIUnavailable(NOT_CONFIGURED)
-    client = OpenAI(api_key=settings.OPENAI_API_KEY, timeout=TIMEOUT_SECONDS)
+    # No retries: the SDK default (2) could hold a request ~3 × timeout, longer
+    # than the gunicorn worker timeout. A failure shows the "try again" notice.
+    client = OpenAI(
+        api_key=settings.OPENAI_API_KEY, timeout=TIMEOUT_SECONDS, max_retries=0
+    )
     try:
         completion = client.chat.completions.create(
             model=settings.OPENAI_MODEL,
