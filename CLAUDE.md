@@ -47,10 +47,12 @@ accounts/        custom User, Profile (auto-created by post_save signal in signa
                  (no id in URL: get_object() returns request.user.profile)
 tags/            Tag (per user) + Tag.objects.from_csv(owner, "a, b") used by forms
 core/            site-wide pages: HomeView at / (name "home")
+learning/        Goal + CRUD at /goals/ (names goal-list/-create/-detail/-update/-delete);
+                 OwnGoalMixin scopes every goal view to request.user; list filter ?status=
 templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates;
                  registration/login.html for LoginView
 # planned:
-learning/        Goal, LearningSession, Resource + their CRUD views
+learning/        LearningSession, Resource + their CRUD views
 learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
 ```
@@ -65,15 +67,18 @@ Now:
   Users older than Profile got theirs from data migration `accounts.0003`.
 - `tags.Tag`: owner (FK User, `user.tags`), name; unique per (owner, name);
   name stored stripped + lowercase in `save()`
+- `learning.Goal`: owner (FK User, `user.goals`), title, description (optional),
+  status (`Goal.Status`: planned / in_progress / done, default planned),
+  created_at, updated_at; newest first. `Goal.objects.for_user(u).with_status(s)`
+  (unknown/empty status → no filter)
 
 Test factories: `accounts.tests.factories.UserFactory` (profile comes with it),
-`tags.tests.factories.TagFactory`. factory_boy resolves `Meta.model` when the
+`tags.tests.factories.TagFactory`, `learning.tests.factories.GoalFactory`. factory_boy resolves `Meta.model` when the
 factory class is defined, so a factory for a not-yet-existing model makes its
 importing test modules fail at collection (fine for red, but add the model first in green).
 
 Target:
 
-- `Goal`: owner (FK User), title, description, status (planned / in_progress / done), created_at, updated_at
 - `LearningSession`: goal (FK), date, duration_minutes, notes, tags (M2M Tag)
 - `Resource`: goal (FK), url, title, type (article / video / repo / doc)
 
