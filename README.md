@@ -8,4 +8,21 @@ Built end-to-end by an AI coding agent through an "AI factory" pipeline
 
 **Stack:** Python 3.12 · Django 5.2 · PostgreSQL · Django templates + Pico.css · pytest · OpenAI API · Docker · GitHub Actions
 
-Setup instructions will be added with the scaffolding ticket.
+## Local setup
+
+Requirements: [uv](https://docs.astral.sh/uv/) and Docker.
+
+```bash
+cp -n .env.example .env              # dev-only settings
+uv sync                              # Python 3.12 + dependencies
+docker compose up -d --wait db       # PostgreSQL 16 on localhost:5433
+uv run python manage.py migrate
+uv run python manage.py runserver    # http://127.0.0.1:8000
+```
+
+Tests and lint:
+
+```bash
+uv run pytest
+uv run ruff check . && uv run ruff format --check .
+```
