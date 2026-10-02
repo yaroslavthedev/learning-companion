@@ -48,7 +48,13 @@ if [[ "$cmd" =~ gh[[:space:]]+pr[[:space:]]+merge ]]; then
   decide ask "Merging a PR needs explicit tech-lead approval."
 fi
 
-# 5. Secret scan before any commit: changed + new untracked files.
+# 5. Python only through uv (CLAUDE.md stack): no system python/pip at the start
+# of a command segment. `uv run python ...` is allowed.
+if [[ "$cmd" =~ (^|[;\&\|\(]|$'\n')[[:space:]]*(/[^[:space:]]*/)?(python3?|pip3?)([[:space:]]|$) ]]; then
+  decide deny "System python/pip is forbidden. Use \`uv run python\` (dependencies: \`uv add\`, only if in the approved plan); for file edits use the Edit tool."
+fi
+
+# 6. Secret scan before any commit: changed + new untracked files.
 if [[ "$cmd" =~ git[[:space:]]+commit ]]; then
   pattern='sk-[A-Za-z0-9_-]{20,}|(api[_-]?key|secret[_-]?key|password|token)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{16,}["'"'"']'
   hits=$({

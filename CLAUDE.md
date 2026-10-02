@@ -8,7 +8,7 @@ and reviews PRs. Follow the pipeline below; don't skip checkpoints.
 
 ## Stack (fixed — do not add or swap technologies without tech-lead approval)
 
-- Python 3.12, managed by **uv** (never use system `python3`/`pip`)
+- Python 3.12, managed by **uv** (never use system `python3`/`pip`; the guard-bash hook denies them)
 - Django 5.2 LTS, server-rendered templates + Pico.css (no JS framework)
 - PostgreSQL everywhere: dev, tests, CI and prod (no SQLite)
 - pytest + pytest-django + factory_boy; ruff for lint + format
