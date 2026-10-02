@@ -22,13 +22,16 @@ class OwnGoalMixin(LoginRequiredMixin):
 
 
 class GoalListView(OwnGoalMixin, ListView):
+    def get_active_status(self):
+        """The ?status= value if it's a real status, else "" (= All)."""
+        status = self.request.GET.get("status")
+        return status if status in Goal.Status.values else ""
+
     def get_queryset(self):
-        return super().get_queryset().with_status(self.request.GET.get("status"))
+        return super().get_queryset().with_status(self.get_active_status())
 
     def get_context_data(self, **kwargs):
-        active = self.request.GET.get("status")
-        if active not in Goal.Status.values:
-            active = ""
+        active = self.get_active_status()
         list_url = reverse("goal-list")
         filters = [("", "All", list_url)] + [
             (value, label, f"{list_url}?status={value}")
@@ -54,15 +57,9 @@ class GoalCreateView(OwnGoalMixin, CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("goal-detail", args=[self.object.pk])
-
 
 class GoalUpdateView(OwnGoalMixin, UpdateView):
     form_class = GoalForm
-
-    def get_success_url(self):
-        return reverse("goal-detail", args=[self.object.pk])
 
 
 class GoalDeleteView(OwnGoalMixin, DeleteView):
