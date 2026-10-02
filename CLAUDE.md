@@ -127,7 +127,7 @@ Columns: Backlog → Ready → In Progress → Review → Done
 4. **Code green + refactor**; hooks run ruff + pytest automatically
 5. **Self-review + update this file** (skill `self-review`) → STOP for "ок" to push
    → PR → wait for green CI → issue to Review → STOP
-6. Tech lead reviews. Only on explicit "merge": skill `finish-ticket`
+6. Tech lead reviews, then runs `/finish-ticket` (the agent can't invoke it)
    (requires green CI on the PR; squash merge, issue → Done, retro with pipeline improvements)
 
 The agent never merges a PR or moves an issue to Ready on its own.

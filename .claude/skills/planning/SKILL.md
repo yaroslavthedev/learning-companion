@@ -57,3 +57,6 @@ Goal: the tech lead can approve or correct the approach *before* any code exists
   `MigrationExecutor` (migrate back, create rows via historical models, migrate forward).
 - New FK/M2M between user-owned models, or a new admin → plan how the same
   owner is enforced (form queryset, admin read-only/autocomplete) and test it.
+- New GitHub Action → confirm the exact tag exists before planning it:
+  `gh api repos/<owner>/<repo>/git/ref/tags/<tag>`. Some actions (setup-uv ≥ v8)
+  publish no moving major tags, so `@vN` fails at "Set up job".

@@ -82,4 +82,6 @@ Then move the issue: `.claude/scripts/board.sh move <n> Review`.
 Give the tech lead in chat: the PR link, the green CI status (`gh pr checks`), the
 browser checklist and the 2–3 diff spots that deserve the closest look. If the
 diff adds migrations, say in the chat that they're already applied to the dev DB
-(or that the tech lead must run `migrate` first). Then **STOP**. Don't merge.
+(or that the tech lead must run `migrate` first). End with: "after review, run
+`/finish-ticket` to merge" (only the tech lead can invoke it; don't offer to
+merge yourself). Then **STOP**. Don't merge.
