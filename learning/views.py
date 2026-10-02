@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -9,6 +9,7 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 
 from learning.forms import GoalForm, LearningSessionForm, ResourceForm
@@ -65,7 +66,7 @@ class GoalDetailView(OwnGoalMixin, DetailView):
         return super().get_context_data(**goal_detail_context(self.object), **kwargs)
 
 
-class GoalAIView(OwnGoalMixin, SingleObjectMixin, View):
+class GoalAIView(OwnGoalMixin, SingleObjectMixin, TemplateResponseMixin, View):
     """POST-only AI action: the goal page again, with the reply or a notice.
 
     get_object() is scoped, so another user's goal is a 404 before any call."""
@@ -82,7 +83,7 @@ class GoalAIView(OwnGoalMixin, SingleObjectMixin, View):
             result = self.ask(self.object)
         except ai.AIUnavailable as error:
             result = {"ai_error": str(error)}
-        return render(request, self.template_name, self.get_context_data(**result))
+        return self.render_to_response(self.get_context_data(**result))
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**goal_detail_context(self.object), **kwargs)
