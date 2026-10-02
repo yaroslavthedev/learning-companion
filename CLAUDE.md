@@ -88,6 +88,7 @@ Now:
 - `accounts.Profile`: user (1:1, `user.profile`), name, cohort, focus_areas (M2M Tag).
   Every User gets exactly one, via the `post_save` signal; never create it by hand.
   Users older than Profile got theirs from data migration `accounts.0003`.
+  Admin: focus_areas via autocomplete; `ProfileAdminForm` rejects tags of another user
 - `tags.Tag`: owner (FK User, `user.tags`), name; unique per (owner, name);
   name stored stripped + lowercase in `save()`
 - `learning.Goal`: owner (FK User, `user.goals`), title, description (optional),
@@ -97,7 +98,9 @@ Now:
 - `learning.LearningSession`: goal (FK, cascade, `goal.sessions`), date (default
   today), duration_minutes (≥ 1), notes (optional), tags (M2M Tag, `tag.sessions`),
   created_at; newest date first. `LearningSession.objects.for_user(u)` (via goal__owner).
-  Form field `tags_text` → `Tag.objects.from_csv(user, ...)`, same tags as focus areas
+  Form field `tags_text` → `Tag.objects.from_csv(user, ...)`, same tags as focus areas.
+  Admin: goal + tags via autocomplete; `LearningSessionAdminForm` rejects tags whose
+  owner isn't the goal's owner (error on `tags`)
 - `learning.Resource`: goal (FK, cascade, `goal.resources`), url (≤ 500, http/https only),
   title, kind (`Resource.Kind`: article / video / repo / doc, default article; the ticket
   said `type`, renamed to avoid the builtin), created_at; newest first.
