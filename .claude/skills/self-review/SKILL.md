@@ -11,7 +11,13 @@ description: Self-review the ticket branch diff against a checklist, fix finding
 uv run pytest -q
 uv run ruff check . && uv run ruff format --check .
 uv run python manage.py makemigrations --check --dry-run   # no missing migrations
+uv run python manage.py migrate        # apply new migrations to the dev DB
 ```
+
+Tests build their own DB, so they can't catch an unmigrated dev DB. Smoke-test
+every new URL against the dev DB (logged-in Django test client in
+`manage.py shell` with `override_settings(ALLOWED_HOSTS=["testserver"])`):
+each must return 200, not 500.
 
 ## 2. Read your own diff: `git diff main...HEAD`
 
@@ -66,5 +72,6 @@ Then move the issue: `.claude/scripts/board.sh move <n> Review`.
 ## 5. Hand-off (checkpoint 4)
 
 Give the tech lead in chat: the PR link, the CI status (`gh pr checks`), the
-browser checklist and the 2–3 diff spots that deserve the closest look. Then
-**STOP**. Don't merge.
+browser checklist and the 2–3 diff spots that deserve the closest look. If the
+diff adds migrations, say in the chat that they're already applied to the dev DB
+(or that the tech lead must run `migrate` first). Then **STOP**. Don't merge.
