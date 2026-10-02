@@ -36,5 +36,14 @@
   {"cmd": "git rm learning/old.py", "expect": "allow"},
   {"cmd": "pkill -f \"rm config/x.py\"", "expect": "allow"},
   {"cmd": "grep -rn 'rm ' .claude", "expect": "allow"},
+  {"cmd": "grep -n '\"rm\\|rm ' x.json", "expect": "allow"},
+  {"cmd": "mv MEMORY.md.tmp MEMORY.md", "expect": "deny"},
+  {"cmd": "grep -v x a > b && mv b a", "expect": "deny"},
+  {"cmd": "cp .env.example .env", "expect": "deny"},
+  {"cmd": "mv -f a b", "expect": "allow"},
+  {"cmd": "cp -n .env.example .env", "expect": "allow"},
+  {"cmd": "cp -Rf src dst", "expect": "allow"},
+  {"cmd": "/bin/mv a b && /bin/cp a b", "expect": "allow"},
+  {"cmd": "git mv learning/old.py learning/new.py", "expect": "allow"},
   {"cmd": "ls -la", "expect": "allow"}
 ]
