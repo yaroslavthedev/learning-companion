@@ -26,5 +26,15 @@
   {"cmd": "uv run pytest -q && uv run python manage.py shell -c 'print(1)'", "expect": "allow"},
   {"cmd": "cat > body.md <<EOF\npython3 is not allowed\nEOF\ngh pr create --body-file body.md", "expect": "allow"},
   {"cmd": "grep -rn python3 CLAUDE.md", "expect": "allow"},
+  {"cmd": "rm config/tests/test_probe.py", "expect": "deny"},
+  {"cmd": "uv run pytest x.py; rm x.py", "expect": "deny"},
+  {"cmd": "rm -r build", "expect": "deny"},
+  {"cmd": "rm -f config/tests/test_probe.py", "expect": "allow"},
+  {"cmd": "rm -rf build && ls", "expect": "allow"},
+  {"cmd": "rm --force x", "expect": "allow"},
+  {"cmd": "/bin/rm x", "expect": "allow"},
+  {"cmd": "git rm learning/old.py", "expect": "allow"},
+  {"cmd": "pkill -f \"rm config/x.py\"", "expect": "allow"},
+  {"cmd": "grep -rn 'rm ' .claude", "expect": "allow"},
   {"cmd": "ls -la", "expect": "allow"}
 ]
