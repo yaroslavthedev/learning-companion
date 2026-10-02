@@ -17,6 +17,9 @@ Precondition: the plan is approved and you are on the ticket branch
 4. They must fail **for the right reason**: an assertion, a missing URL or a
    missing model. A syntax error or a broken import in the test itself doesn't
    count as red. Fix those first.
+   A factory for a model that doesn't exist yet goes in a temporary
+   `<app>/tests/<model>_factories.py`, never in the shared `factories.py`
+   (it would break collection of every existing test). Move it in green.
 5. `uv run ruff check .` must pass before the `test:` commit (the Stop hook
    only allows a red stop when lint is clean). Lint fixes to generated code go
    in a separate `chore:` commit first.
