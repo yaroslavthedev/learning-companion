@@ -9,3 +9,4 @@
 - Never move an issue to **Ready** or **Done** on your own. Ready = tech-lead
   approval; Done happens only through `finish-ticket` after the merge.
 - Never add a dependency (`uv add`) that isn't in the approved plan.
+- Never bypass git hooks (`commit -n` / its long form); fix what they report.

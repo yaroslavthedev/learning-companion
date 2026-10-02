@@ -43,6 +43,12 @@ if [[ "$cmd" =~ git[[:space:]]+add${seg}[[:space:]](-f|--force)${end} ]]; then
   decide deny "git add --force is forbidden: it bypasses .gitignore (secrets in .env)."
 fi
 
+# 3b. Never bypass git hooks (`commit -n` is short for --no-verify; `push -n` is a dry run).
+if [[ "$cmd" =~ git[[:space:]]+(commit|push)${seg}[[:space:]]--no-verify${end} ]] \
+  || [[ "$cmd" =~ git[[:space:]]+commit${seg}[[:space:]]-[a-ln-zA-Z]*n[a-zA-Z]*${end} ]]; then
+  decide deny "Bypassing git hooks is forbidden. Fix what the hook reports instead."
+fi
+
 # 4. Merging a PR always needs the tech lead's confirmation in the UI.
 if [[ "$cmd" =~ gh[[:space:]]+pr[[:space:]]+merge ]]; then
   decide ask "Merging a PR needs explicit tech-lead approval."

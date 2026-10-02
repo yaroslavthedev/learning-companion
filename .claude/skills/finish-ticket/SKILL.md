@@ -6,7 +6,9 @@ disable-model-invocation: true
 
 # Finish ticket
 
-Run this only when the tech lead has explicitly said to merge (e.g. "merge").
+Only the tech lead invokes this, by typing `/finish-ticket` (the agent can't
+invoke it: `disable-model-invocation`). If they just say "merge" in chat, ask
+them to run `/finish-ticket`; never merge by other means.
 
 1. `gh pr checks <pr>`: the CI job (`.github/workflows/ci.yml`) must be listed
    and green. Red, pending or missing ("no checks reported") → stop and report.
