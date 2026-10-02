@@ -12,6 +12,20 @@
       <ul>
         <li><a href="{% url 'home' %}"><strong>Learning Companion</strong></a></li>
       </ul>
+      <ul>
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'profile' %}">Profile</a></li>
+          <li>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="outline">Log out</button>
+            </form>
+          </li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Log in</a></li>
+          <li><a href="{% url 'signup' %}">Sign up</a></li>
+        {% endif %}
+      </ul>
     </nav>
   </header>
   <main class="container">
