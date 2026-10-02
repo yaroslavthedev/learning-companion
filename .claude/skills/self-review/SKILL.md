@@ -42,7 +42,7 @@ and wait for their "ок". Push and open the PR only after that.
 
 ```bash
 git push -u origin HEAD
-gh pr create --fill-first --body-file <file>   # body template below
+gh pr create --title "<issue title> (#<n>)" --body-file <file>   # body template below
 ```
 
 ```markdown

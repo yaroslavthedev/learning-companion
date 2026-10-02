@@ -9,6 +9,8 @@
 - Never commit `.env`. Never weaken `.gitignore` rules for `.env*`.
 - Tests use fake keys (`OPENAI_API_KEY="test-key"`) and mock the OpenAI client.
   Tests never make real network calls.
+- Test passwords are short constants (< 16 chars, e.g. `"test-password"`):
+  the commit hook flags longer quoted values after `password =`. Don't weaken the hook.
 - Keep `DEBUG` and `ALLOWED_HOSTS` env-driven. `DEBUG` defaults to False.
 - Every form uses `{% csrf_token %}`. Never put `|safe` or `mark_safe` on user
   input or on AI output.

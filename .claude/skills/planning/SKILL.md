@@ -52,3 +52,6 @@ Goal: the tech lead can approve or correct the approach *before* any code exists
 - Every acceptance criterion maps to at least one test.
 - Every view that returns user data has an "other user gets 404" test.
 - No technology outside the CLAUDE.md stack.
+- New model every existing row must have (1:1 like Profile) or a new required
+  field → plan a data migration for existing rows + a test with
+  `MigrationExecutor` (migrate back, create rows via historical models, migrate forward).
