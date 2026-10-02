@@ -10,3 +10,12 @@ class GoalFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     title = factory.Sequence(lambda n: f"Goal {n}")
     description = ""
+
+
+class LearningSessionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "learning.LearningSession"
+
+    goal = factory.SubFactory(GoalFactory)
+    duration_minutes = 30
+    notes = ""

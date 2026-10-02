@@ -15,6 +15,7 @@
       <ul>
         {% if user.is_authenticated %}
           <li><a href="{% url 'goal-list' %}">Goals</a></li>
+          <li><a href="{% url 'session-list' %}">Sessions</a></li>
           <li><a href="{% url 'profile' %}">Profile</a></li>
           <li>
             <form method="post" action="{% url 'logout' %}">

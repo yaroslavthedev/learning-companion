@@ -16,4 +16,15 @@
       <a href="{% url 'goal-list' %}">Back to goals</a>
     </footer>
   </article>
+  <section>
+    <nav>
+      <ul><li><h2>Sessions</h2></li><li>Total: {{ goal.total_hours|floatformat:"-1" }} h</li></ul>
+      <ul><li><a href="{% url 'session-create' %}?goal={{ goal.pk }}" role="button">Add session</a></li></ul>
+    </nav>
+    {% if sessions %}
+      {% include "learning/_session_table.html" %}
+    {% else %}
+      <p>No sessions yet.</p>
+    {% endif %}
+  </section>
 {% endblock %}

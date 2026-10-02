@@ -8,8 +8,8 @@ from django.views.generic import (
     UpdateView,
 )
 
-from learning.forms import GoalForm
-from learning.models import Goal
+from learning.forms import GoalForm, LearningSessionForm
+from learning.models import Goal, LearningSession
 
 
 class OwnGoalMixin(LoginRequiredMixin):
@@ -47,7 +47,10 @@ class GoalListView(OwnGoalMixin, ListView):
 
 
 class GoalDetailView(OwnGoalMixin, DetailView):
-    pass
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            sessions=self.object.sessions.prefetch_related("tags"), **kwargs
+        )
 
 
 class GoalCreateView(OwnGoalMixin, CreateView):
@@ -64,3 +67,49 @@ class GoalUpdateView(OwnGoalMixin, UpdateView):
 
 class GoalDeleteView(OwnGoalMixin, DeleteView):
     success_url = reverse_lazy("goal-list")
+
+
+class OwnSessionMixin(LoginRequiredMixin):
+    """Only sessions of the current user's goals exist here: others give 404."""
+
+    model = LearningSession
+
+    def get_queryset(self):
+        return (
+            LearningSession.objects.for_user(self.request.user)
+            .select_related("goal")
+            .prefetch_related("tags")
+        )
+
+    def get_success_url(self):
+        return self.object.goal.get_absolute_url()
+
+
+class SessionFormMixin(OwnSessionMixin):
+    form_class = LearningSessionForm
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {"user": self.request.user}
+
+
+class SessionListView(OwnSessionMixin, ListView):
+    pass
+
+
+class SessionCreateView(SessionFormMixin, CreateView):
+    def get_initial(self):
+        """?goal=<pk> pre-selects that goal, but only one of the user's own."""
+        initial = super().get_initial()
+        goal_id = self.request.GET.get("goal", "")
+        own_goals = Goal.objects.for_user(self.request.user)
+        if goal_id.isdigit() and own_goals.filter(pk=goal_id).exists():
+            initial["goal"] = int(goal_id)
+        return initial
+
+
+class SessionUpdateView(SessionFormMixin, UpdateView):
+    pass
+
+
+class SessionDeleteView(OwnSessionMixin, DeleteView):
+    pass
