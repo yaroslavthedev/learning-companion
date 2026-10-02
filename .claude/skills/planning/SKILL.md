@@ -50,6 +50,10 @@ Goal: the tech lead can approve or correct the approach *before* any code exists
 ## Checks before posting
 
 - Every acceptance criterion maps to at least one test.
+- For each planned test, check whether current code or Django defaults already
+  make it pass (e.g. the admin auto-`select_related`s FKs in `list_display`).
+  Such a test is a regression guard: mark it so in the test list and plan no
+  production code for it.
 - Every view that returns user data has an "other user gets 404" test.
 - No technology outside the CLAUDE.md stack.
 - New model every existing row must have (1:1 like Profile) or a new required

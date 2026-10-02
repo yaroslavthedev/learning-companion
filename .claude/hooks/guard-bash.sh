@@ -60,14 +60,19 @@ if [[ "$cmd" =~ (^|[;\&\|\(]|$'\n')[[:space:]]*(/[^[:space:]]*/)?(python3?|pip3?
   decide deny "System python/pip is forbidden. Use \`uv run python\` (dependencies: \`uv add\`, only if in the approved plan); for file edits use the Edit tool."
 fi
 
-# 5b. `rm` is aliased to `rm -i` in the dev shell: without -f it waits for an
-# answer (hangs the call) or silently deletes nothing. `/bin/rm` and `git rm` are fine.
+# 5b. `rm`, `mv` and `cp` are aliased to `<cmd> -i` in the dev shell: without -f
+# (or -n for mv/cp) they wait for an answer and hang the call. `/bin/<cmd>`,
+# `git rm` and `git mv` are fine. Quoted strings are dropped first, so a `|`
+# inside a grep pattern doesn't start a new segment.
 while IFS= read -r part; do
-  if [[ "$part" =~ ^[[:space:]]*rm([[:space:]]|$) ]] \
-    && ! [[ "$part" =~ [[:space:]](-[a-zA-Z]*f[a-zA-Z]*|--force)([[:space:]]|$) ]]; then
-    decide deny "\`rm\` is aliased to \`rm -i\` here and would hang. Use \`rm -f\`, \`/bin/rm\` or \`git rm\`."
+  if [[ "$part" =~ ^[[:space:]]*(rm|mv|cp)([[:space:]]|$) ]]; then
+    tool=${BASH_REMATCH[1]}
+    flags='f'; [[ "$tool" != rm ]] && flags='fn'
+    if ! [[ "$part" =~ [[:space:]](-[a-zA-Z]*[$flags][a-zA-Z]*|--force)([[:space:]]|$) ]]; then
+      decide deny "\`$tool\` is aliased to \`$tool -i\` here and would hang. Use \`$tool -f\` or \`/bin/$tool\` (tracked files: \`git rm\` / \`git mv\`; never overwrite: \`cp -n\` / \`mv -n\`)."
+    fi
   fi
-done < <(tr ';&|()' '\n' <<<"$cmd")
+done < <(sed -E "s/'[^']*'//g; s/\"[^\"]*\"//g" <<<"$cmd" | tr ';&|()' '\n')
 
 # 6. Secret scan before any commit: changed + new untracked files.
 if [[ "$cmd" =~ git[[:space:]]+commit ]]; then

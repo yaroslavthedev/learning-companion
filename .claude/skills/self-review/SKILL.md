@@ -34,6 +34,9 @@ Go through the checklist. Fix every issue before opening the PR.
 - [ ] No debug leftovers (`print`, `breakpoint()`, commented-out code)
 - [ ] No unrelated changes (scope creep)
 - [ ] Querysets in loops use `select_related`/`prefetch_related` (no N+1)
+- [ ] Form `clean()` doesn't read instance relations that may not exist yet on
+      create (`self.instance.<fk>` raises `RelatedObjectDoesNotExist` on an add
+      form → 500); skip the check when the field itself is invalid
 
 ## 3. Update CLAUDE.md
 
