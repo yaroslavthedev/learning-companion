@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, URLValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
@@ -50,6 +50,16 @@ class Goal(models.Model):
         minutes = self.sessions.aggregate(total=Sum("duration_minutes"))["total"]
         return (minutes or 0) / 60
 
+    def resources_by_kind(self):
+        """[(heading, resources), ...] in Resource.Kind order; empty kinds left out."""
+        resources = list(self.resources.all())
+        groups = []
+        for kind, label in Resource.Kind.choices:
+            of_kind = [resource for resource in resources if resource.kind == kind]
+            if of_kind:
+                groups.append((f"{label}s", of_kind))
+        return groups
+
 
 class LearningSessionQuerySet(models.QuerySet):
     def for_user(self, user):
@@ -71,3 +81,32 @@ class LearningSession(models.Model):
 
     def __str__(self):
         return f"{self.goal} · {self.date} · {self.duration_minutes} min"
+
+
+class ResourceQuerySet(models.QuerySet):
+    def for_user(self, user):
+        return self.filter(goal__owner=user)
+
+
+class Resource(models.Model):
+    class Kind(models.TextChoices):
+        ARTICLE = "article", "Article"
+        VIDEO = "video", "Video"
+        REPO = "repo", "Repo"
+        DOC = "doc", "Doc"
+
+    goal = models.ForeignKey(Goal, on_delete=models.CASCADE, related_name="resources")
+    url = models.URLField(
+        "URL", max_length=500, validators=[URLValidator(schemes=["http", "https"])]
+    )
+    title = models.CharField(max_length=200)
+    kind = models.CharField(max_length=20, choices=Kind.choices, default=Kind.ARTICLE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = ResourceQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+
+    def __str__(self):
+        return self.title
