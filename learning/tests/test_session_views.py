@@ -14,8 +14,7 @@ from pytest_django.asserts import (
 
 from accounts.tests.factories import UserFactory
 from learning.models import LearningSession
-from learning.tests.factories import GoalFactory
-from learning.tests.session_factories import LearningSessionFactory
+from learning.tests.factories import GoalFactory, LearningSessionFactory
 from tags.models import Tag
 from tags.tests.factories import TagFactory
 

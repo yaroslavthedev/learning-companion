@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Sessions · Learning Companion{% endblock %}
+
+{% block content %}
+  <nav>
+    <ul><li><h1>Sessions</h1></li></ul>
+    <ul><li><a href="{% url 'session-create' %}" role="button">Add session</a></li></ul>
+  </nav>
+  {% if learningsession_list %}
+    {% include "learning/_session_table.html" with sessions=learningsession_list show_goal=True %}
+  {% else %}
+    <p>No sessions yet.</p>
+  {% endif %}
+{% endblock %}

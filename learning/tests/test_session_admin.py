@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.urls import reverse
 
 from learning.models import LearningSession
-from learning.tests.factories import GoalFactory
-from learning.tests.session_factories import LearningSessionFactory
+from learning.tests.factories import GoalFactory, LearningSessionFactory
 
 pytestmark = pytest.mark.django_db
 

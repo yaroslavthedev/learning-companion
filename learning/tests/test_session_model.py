@@ -5,8 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from learning.models import Goal, LearningSession
-from learning.tests.factories import GoalFactory
-from learning.tests.session_factories import LearningSessionFactory
+from learning.tests.factories import GoalFactory, LearningSessionFactory
 
 pytestmark = pytest.mark.django_db
 

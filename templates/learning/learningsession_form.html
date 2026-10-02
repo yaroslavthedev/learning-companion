@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit session{% else %}New session{% endif %} · Learning Companion{% endblock %}
+
+{% block content %}
+  <article>
+    <h1>{% if object %}Edit session{% else %}New session{% endif %}</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button type="submit">Save</button>
+      <a href="{% if object %}{% url 'goal-detail' object.goal.pk %}{% else %}{% url 'session-list' %}{% endif %}" role="button" class="secondary">Cancel</a>
+    </form>
+  </article>
+{% endblock %}

@@ -1,0 +1,27 @@
+<table>
+  <thead>
+    <tr>
+      {% if show_goal %}<th scope="col">Goal</th>{% endif %}
+      <th scope="col">Date</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Tags</th>
+      <th scope="col">Notes</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+      <tr>
+        {% if show_goal %}<td><a href="{% url 'goal-detail' session.goal.pk %}">{{ session.goal.title }}</a></td>{% endif %}
+        <td>{{ session.date|date:"Y-m-d" }}</td>
+        <td>{{ session.duration_minutes }} min</td>
+        <td>{% for tag in session.tags.all %}<mark>{{ tag.name }}</mark> {% endfor %}</td>
+        <td>{{ session.notes|truncatewords:15 }}</td>
+        <td>
+          <a href="{% url 'session-update' session.pk %}">Edit</a>
+          · <a href="{% url 'session-delete' session.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
