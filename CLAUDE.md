@@ -42,23 +42,37 @@ Host port 5432 is taken by another project on the dev machine, so we use 5433.
 ```
 config/          settings.py (reads env / .env via django-environ), urls.py
 config/tests/    settings tests (run Django in a subprocess with a clean env)
-accounts/        custom User (AbstractUser, AUTH_USER_MODEL); later: signup, login, Profile
+accounts/        custom User, Profile (auto-created by post_save signal in signals.py),
+                 SignUpView + built-in LoginView/LogoutView (POST only), /profile/ + /profile/edit/
+                 (no id in URL: get_object() returns request.user.profile)
+tags/            Tag (per user) + Tag.objects.from_csv(owner, "a, b") used by forms
 core/            site-wide pages: HomeView at / (name "home")
-templates/       base.html (Pico.css from CDN) + <app>/ templates
+templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates;
+                 registration/login.html for LoginView
 # planned:
-learning/        Goal, LearningSession, Resource, Tag + their CRUD views
+learning/        Goal, LearningSession, Resource + their CRUD views
 learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
 ```
 
 ### Data model
 
-Now: `accounts.User` (AbstractUser, no extra fields). Test factory: `accounts.tests.factories.UserFactory`.
+Now:
+
+- `accounts.User` (AbstractUser, no extra fields)
+- `accounts.Profile`: user (1:1, `user.profile`), name, cohort, focus_areas (M2M Tag).
+  Every User gets exactly one, via the `post_save` signal; never create it by hand.
+  Users older than Profile got theirs from data migration `accounts.0003`.
+- `tags.Tag`: owner (FK User, `user.tags`), name; unique per (owner, name);
+  name stored stripped + lowercase in `save()`
+
+Test factories: `accounts.tests.factories.UserFactory` (profile comes with it),
+`tags.tests.factories.TagFactory`. factory_boy resolves `Meta.model` when the
+factory class is defined, so a factory for a not-yet-existing model makes its
+importing test modules fail at collection (fine for red, but add the model first in green).
 
 Target:
 
-- `Profile`: user (1:1), name, cohort, focus_areas (M2M Tag)
-- `Tag`: owner (FK User), name; unique per (owner, name)
 - `Goal`: owner (FK User), title, description, status (planned / in_progress / done), created_at, updated_at
 - `LearningSession`: goal (FK), date, duration_minutes, notes, tags (M2M Tag)
 - `Resource`: goal (FK), url, title, type (article / video / repo / doc)

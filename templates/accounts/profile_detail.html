@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Profile · Learning Companion{% endblock %}
+
+{% block content %}
+  <article>
+    <header>
+      <h1>{{ profile.name|default:profile.user.username }}</h1>
+    </header>
+    <dl>
+      <dt>Username</dt>
+      <dd>{{ profile.user.username }}</dd>
+      <dt>Cohort</dt>
+      <dd>{{ profile.cohort|default:"—" }}</dd>
+      <dt>Focus areas</dt>
+      <dd>
+        {% for tag in profile.focus_areas.all %}
+          <mark>{{ tag.name }}</mark>
+        {% empty %}
+          —
+        {% endfor %}
+      </dd>
+    </dl>
+    <footer>
+      <a href="{% url 'profile-edit' %}" role="button">Edit profile</a>
+    </footer>
+  </article>
+{% endblock %}
