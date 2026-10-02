@@ -49,10 +49,15 @@ tags/            Tag (per user) + Tag.objects.from_csv(owner, "a, b") used by fo
 core/            site-wide pages: HomeView at / (name "home")
 learning/        Goal + CRUD at /goals/ (names goal-list/-create/-detail/-update/-delete);
                  OwnGoalMixin scopes every goal view to request.user; list filter ?status=
-templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates;
+                 LearningSession CRUD at /sessions/ (session-list/-create/-update/-delete, no
+                 detail page); OwnSessionMixin scopes via goal__owner, SessionFormMixin passes
+                 user= to LearningSessionForm; /sessions/new/?goal=<pk> pre-selects own goal;
+                 save/delete redirect to the goal; goal detail lists its sessions + total hours
+templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates
+                 (learning/_session_table.html shared by session list + goal detail);
                  registration/login.html for LoginView
 # planned:
-learning/        LearningSession, Resource + their CRUD views
+learning/        Resource + its CRUD views
 learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
 ```
@@ -70,16 +75,21 @@ Now:
 - `learning.Goal`: owner (FK User, `user.goals`), title, description (optional),
   status (`Goal.Status`: planned / in_progress / done, default planned),
   created_at, updated_at; newest first. `Goal.objects.for_user(u).with_status(s)`
-  (unknown/empty status → no filter)
+  (unknown/empty status → no filter). `goal.total_hours()` = sum of its sessions / 60
+- `learning.LearningSession`: goal (FK, cascade, `goal.sessions`), date (default
+  today), duration_minutes (≥ 1), notes (optional), tags (M2M Tag, `tag.sessions`),
+  created_at; newest date first. `LearningSession.objects.for_user(u)` (via goal__owner).
+  Form field `tags_text` → `Tag.objects.from_csv(user, ...)`, same tags as focus areas
 
 Test factories: `accounts.tests.factories.UserFactory` (profile comes with it),
-`tags.tests.factories.TagFactory`, `learning.tests.factories.GoalFactory`. factory_boy resolves `Meta.model` when the
-factory class is defined, so a factory for a not-yet-existing model makes its
-importing test modules fail at collection (fine for red, but add the model first in green).
+`tags.tests.factories.TagFactory`, `learning.tests.factories.GoalFactory` / `LearningSessionFactory`.
+factory_boy resolves `Meta.model` when the factory class is defined, so a factory for a
+not-yet-existing model breaks collection of every module importing that factories file.
+In red, put it in a temporary module (e.g. `session_factories.py`); move it into
+`factories.py` in green once the model exists.
 
 Target:
 
-- `LearningSession`: goal (FK), date, duration_minutes, notes, tags (M2M Tag)
 - `Resource`: goal (FK), url, title, type (article / video / repo / doc)
 
 Ownership: every row belongs to a user, either directly (`owner`) or through `goal__owner`.
