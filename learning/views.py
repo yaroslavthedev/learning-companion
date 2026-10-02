@@ -46,6 +46,13 @@ class GoalListView(OwnGoalMixin, ListView):
         )
 
 
+class GoalDetailView(OwnGoalMixin, DetailView):
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            sessions=self.object.sessions.prefetch_related("tags"), **kwargs
+        )
+
+
 class GoalCreateView(OwnGoalMixin, CreateView):
     form_class = GoalForm
 
@@ -60,13 +67,6 @@ class GoalUpdateView(OwnGoalMixin, UpdateView):
 
 class GoalDeleteView(OwnGoalMixin, DeleteView):
     success_url = reverse_lazy("goal-list")
-
-
-class GoalDetailView(OwnGoalMixin, DetailView):
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            sessions=self.object.sessions.prefetch_related("tags"), **kwargs
-        )
 
 
 class OwnSessionMixin(LoginRequiredMixin):
