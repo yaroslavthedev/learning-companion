@@ -52,7 +52,8 @@ config/          settings.py (reads env / .env via django-environ), urls.py
 config/tests/    settings tests (run Django in a subprocess with a clean env) + CI workflow checks
 .github/workflows/ci.yml   CI: lint, format, migrations check, tests
 accounts/        custom User, Profile (auto-created by post_save signal in signals.py),
-                 SignUpView + built-in LoginView/LogoutView (POST only), /profile/ + /profile/edit/
+                 SignUpView (→ /profile/) + built-in LoginView (→ /dashboard/, LOGIN_REDIRECT_URL)
+                 and LogoutView (POST only), /profile/ + /profile/edit/
                  (no id in URL: get_object() returns request.user.profile)
 tags/            Tag (per user) + Tag.objects.from_csv(owner, "a, b") used by forms
 core/            site-wide pages: HomeView at / (name "home")
@@ -71,13 +72,17 @@ learning/        Goal + CRUD at /goals/ (names goal-list/-create/-detail/-update
 learning/services/ai.py   the only module that talks to OpenAI: summarize_goal(goal),
                  suggest_next_steps(goal) (≤ 3, JSON array or list lines); every failure
                  → AIUnavailable with a fixed user-safe message (never OpenAI's text)
+dashboard/       DashboardView at /dashboard/ (name "dashboard", login required): three tables with
+                 <progress> bars; a user without goals gets only "No data yet" + "Create a goal"
+dashboard/services.py   goals_per_status(user), hours_per_tag(user), hours_per_week(user, today=None):
+                 one ORM aggregation query each (values + annotate, TruncWeek), scoped via
+                 for_user(); rows are dicts with "percent" (of the max, for the bars);
+                 weeks = current ISO week + 7 before it, oldest first, missing weeks → 0
 templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates
                  (learning/_session_table.html shared by session list + goal detail);
                  registration/login.html for LoginView
 conftest.py      (root) every test gets OPENAI_API_KEY="test-key"; httpx2.Client.send is
                  blocked, so an unmocked OpenAI call fails the test
-# planned:
-dashboard/       aggregation queries + dashboard page
 ```
 
 ### Data model
