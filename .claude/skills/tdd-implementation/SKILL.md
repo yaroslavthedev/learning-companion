@@ -17,8 +17,11 @@ Precondition: the plan is approved and you are on the ticket branch
 4. They must fail **for the right reason**: an assertion, a missing URL or a
    missing model. A syntax error or a broken import in the test itself doesn't
    count as red. Fix those first.
-5. Commit: `test: add failing tests for <feature> (#<n>)`.
-6. **STOP (checkpoint 3).** Show the tech lead:
+5. `uv run ruff check .` must pass before the `test:` commit (the Stop hook
+   only allows a red stop when lint is clean). Lint fixes to generated code go
+   in a separate `chore:` commit first.
+6. Commit: `test: add failing tests for <feature> (#<n>)`.
+7. **STOP (checkpoint 3).** Show the tech lead:
    - the list of test names grouped by acceptance criterion
    - a short excerpt of the failing output
    Wait for approval.

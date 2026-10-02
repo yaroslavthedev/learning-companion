@@ -36,6 +36,10 @@ Commit as `docs: update CLAUDE.md (#<n>)`.
 
 ## 4. Open the PR
 
+**STOP before pushing.** Write the PR body (template below) to a file in the
+scratchpad, show the tech lead `git log main..HEAD --oneline` and the body,
+and wait for their "ок". Push and open the PR only after that.
+
 ```bash
 git push -u origin HEAD
 gh pr create --fill-first --body-file <file>   # body template below
