@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "core",
     "tags",
     "learning",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 
 AUTH_USER_MODEL = "accounts.User"
 
-LOGIN_REDIRECT_URL = "profile"
+LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 
 
