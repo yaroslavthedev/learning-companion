@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Goals · Learning Companion{% endblock %}
+
+{% block content %}
+  <hgroup>
+    <h1>Goals</h1>
+  </hgroup>
+  <nav>
+    <ul>
+      {% for filter in status_filters %}
+        <li><a href="{{ filter.url }}"{% if filter.active %} aria-current="page"{% endif %}>{{ filter.label }}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      <li><a href="{% url 'goal-create' %}" role="button">New goal</a></li>
+    </ul>
+  </nav>
+  {% for goal in goal_list %}
+    <article>
+      <header>
+        <a href="{% url 'goal-detail' goal.pk %}"><strong>{{ goal.title }}</strong></a>
+        · <small>{{ goal.get_status_display }}</small>
+      </header>
+      {% if goal.description %}<p>{{ goal.description|truncatewords:30 }}</p>{% endif %}
+    </article>
+  {% empty %}
+    <p>No goals yet.</p>
+  {% endfor %}
+{% endblock %}
