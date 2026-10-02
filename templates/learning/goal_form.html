@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit goal{% else %}New goal{% endif %} · Learning Companion{% endblock %}
+
+{% block content %}
+  <article>
+    <h1>{% if object %}Edit goal{% else %}New goal{% endif %}</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button type="submit">Save</button>
+      <a href="{% if object %}{% url 'goal-detail' object.pk %}{% else %}{% url 'goal-list' %}{% endif %}" role="button" class="secondary">Cancel</a>
+    </form>
+  </article>
+{% endblock %}
