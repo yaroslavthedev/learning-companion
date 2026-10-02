@@ -29,7 +29,14 @@ uv run python manage.py makemigrations    # after any model change
 uv run pytest                             # all tests (needs the db container)
 uv run pytest path/to/test_file.py -k name  # single test
 uv run ruff check . --fix && uv run ruff format .
+gh pr checks <pr> --watch                 # CI status of a PR (the merge gate)
 ```
+
+CI (`.github/workflows/ci.yml`) runs on every push and PR: `uv sync --locked`,
+`ruff check .`, `ruff format --check .`, `makemigrations --check --dry-run`,
+`pytest -q`, against a `postgres:16` service on port 5432. Its env is set in the
+workflow (dummy values, no repository secrets, no `.env`);
+`config/tests/test_ci_workflow.py` guards that contract.
 
 Env vars (see `.env.example`): `SECRET_KEY` (required), `DEBUG` (default False),
 `ALLOWED_HOSTS` (comma-separated), `DATABASE_URL` (required),
@@ -41,7 +48,8 @@ Host port 5432 is taken by another project on the dev machine, so we use 5433.
 
 ```
 config/          settings.py (reads env / .env via django-environ), urls.py
-config/tests/    settings tests (run Django in a subprocess with a clean env)
+config/tests/    settings tests (run Django in a subprocess with a clean env) + CI workflow checks
+.github/workflows/ci.yml   CI: lint, format, migrations check, tests
 accounts/        custom User, Profile (auto-created by post_save signal in signals.py),
                  SignUpView + built-in LoginView/LogoutView (POST only), /profile/ + /profile/edit/
                  (no id in URL: get_object() returns request.user.profile)
@@ -118,9 +126,9 @@ Columns: Backlog → Ready → In Progress → Review → Done
 3. **Tests red** (skill `tdd-implementation`) → show test list → STOP for approval
 4. **Code green + refactor**; hooks run ruff + pytest automatically
 5. **Self-review + update this file** (skill `self-review`) → STOP for "ок" to push
-   → PR → issue to Review → STOP
+   → PR → wait for green CI → issue to Review → STOP
 6. Tech lead reviews. Only on explicit "merge": skill `finish-ticket`
-   (squash merge, issue → Done, retro with pipeline improvements)
+   (requires green CI on the PR; squash merge, issue → Done, retro with pipeline improvements)
 
 The agent never merges a PR or moves an issue to Ready on its own.
 Approvals are stored as issue labels `plan-approved` / `tests-approved`.

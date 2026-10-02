@@ -8,10 +8,9 @@ disable-model-invocation: true
 
 Run this only when the tech lead has explicitly said to merge (e.g. "merge").
 
-1. `gh pr checks <pr>`: CI must be green. If it's red, stop and report.
-   If no checks are configured, run the local gate instead:
-   `uv run pytest -q`, `uv run ruff check .`, `uv run ruff format --check .`,
-   `uv run python manage.py makemigrations --check --dry-run`. Any failure → stop.
+1. `gh pr checks <pr>`: the CI job (`.github/workflows/ci.yml`) must be listed
+   and green. Red, pending or missing ("no checks reported") → stop and report.
+   There is no local fallback: CI is the merge gate.
 2. `gh pr merge <pr> --squash --delete-branch --subject "<issue title> (#<n>)"`
    (without `--subject`, GitHub appends the PR number to a title that already
    has the issue number: `... (#2) (#10)`)

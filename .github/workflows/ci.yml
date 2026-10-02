@@ -1,0 +1,58 @@
+# Merge gate: the same checks as locally, on a clean machine, on what's committed.
+# All config comes from the env block below: dummy values only, nothing from
+# the repository settings, so forks and offline-safe tests work the same.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: learning_companion
+        ports:
+          # Plain 5432 here; 5433 is only a dev-machine workaround
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d learning_companion"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+
+    env:
+      SECRET_KEY: ci-dummy-secret-key
+      DEBUG: "False"
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/learning_companion
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.21"
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies (fails if uv.lock is stale)
+        run: uv sync --locked
+
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format
+        run: uv run ruff format --check .
+
+      - name: Migrations are up to date
+        run: uv run python manage.py makemigrations --check --dry-run
+
+      - name: pytest
+        run: uv run pytest -q

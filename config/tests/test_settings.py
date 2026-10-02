@@ -65,3 +65,14 @@ def test_allowed_hosts_read_from_env(tmp_path):
 
 def test_database_backend_is_postgresql():
     assert connection.vendor == "postgresql"
+
+
+def test_settings_load_without_env_file(tmp_path):
+    # CI has no .env: everything comes from real env vars.
+    result = run_django(
+        tmp_path,
+        ["-W", "error", "manage.py", "check"],
+        DJANGO_ENV_FILE=str(tmp_path / "missing.env"),
+    )
+
+    assert result.returncode == 0, result.stderr

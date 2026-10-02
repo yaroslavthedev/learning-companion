@@ -71,11 +71,15 @@ Closes #<n>
 <anything the tech lead should look at closely, known limitations>
 ```
 
+Wait for CI: `gh pr checks <pr> --watch`. It must list the CI job and end
+green. Red → fix on the branch, push, wait again. Missing → find out why
+(workflow not triggered?) before going on. Hand off only on green.
+
 Then move the issue: `.claude/scripts/board.sh move <n> Review`.
 
 ## 5. Hand-off (checkpoint 4)
 
-Give the tech lead in chat: the PR link, the CI status (`gh pr checks`), the
+Give the tech lead in chat: the PR link, the green CI status (`gh pr checks`), the
 browser checklist and the 2–3 diff spots that deserve the closest look. If the
 diff adds migrations, say in the chat that they're already applied to the dev DB
 (or that the tech lead must run `migrate` first). Then **STOP**. Don't merge.
