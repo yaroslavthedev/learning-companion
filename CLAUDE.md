@@ -53,11 +53,13 @@ learning/        Goal + CRUD at /goals/ (names goal-list/-create/-detail/-update
                  detail page); OwnSessionMixin scopes via goal__owner, SessionFormMixin passes
                  user= to LearningSessionForm; /sessions/new/?goal=<pk> pre-selects own goal;
                  save/delete redirect to the goal; goal detail lists its sessions + total hours
+                 Resource: POST-only /goals/<goal_pk>/resources/ (resource-create; inline form on
+                 goal detail, errors re-render goal_detail.html via goal_detail_context()),
+                 /resources/<pk>/delete/ (resource-delete, confirm page); no list/detail/edit
 templates/       base.html (Pico.css from CDN, auth-aware nav) + <app>/ templates
                  (learning/_session_table.html shared by session list + goal detail);
                  registration/login.html for LoginView
 # planned:
-learning/        Resource + its CRUD views
 learning/services/ai.py   the only module that talks to OpenAI
 dashboard/       aggregation queries + dashboard page
 ```
@@ -80,17 +82,18 @@ Now:
   today), duration_minutes (≥ 1), notes (optional), tags (M2M Tag, `tag.sessions`),
   created_at; newest date first. `LearningSession.objects.for_user(u)` (via goal__owner).
   Form field `tags_text` → `Tag.objects.from_csv(user, ...)`, same tags as focus areas
+- `learning.Resource`: goal (FK, cascade, `goal.resources`), url (≤ 500, http/https only),
+  title, kind (`Resource.Kind`: article / video / repo / doc, default article; the ticket
+  said `type`, renamed to avoid the builtin), created_at; newest first.
+  `Resource.objects.for_user(u)`; `goal.resources_by_kind()` → `[("Articles", [...]), ...]`
+  in Kind order, empty kinds skipped. Admin: `autocomplete_fields=["goal"]`
 
 Test factories: `accounts.tests.factories.UserFactory` (profile comes with it),
-`tags.tests.factories.TagFactory`, `learning.tests.factories.GoalFactory` / `LearningSessionFactory`.
+`tags.tests.factories.TagFactory`, `learning.tests.factories.GoalFactory` / `LearningSessionFactory` / `ResourceFactory`.
 factory_boy resolves `Meta.model` when the factory class is defined, so a factory for a
 not-yet-existing model breaks collection of every module importing that factories file.
 In red, put it in a temporary module (e.g. `session_factories.py`); move it into
 `factories.py` in green once the model exists.
-
-Target:
-
-- `Resource`: goal (FK), url, title, type (article / video / repo / doc)
 
 Ownership: every row belongs to a user, either directly (`owner`) or through `goal__owner`.
 
