@@ -62,6 +62,7 @@ Now:
 - `accounts.User` (AbstractUser, no extra fields)
 - `accounts.Profile`: user (1:1, `user.profile`), name, cohort, focus_areas (M2M Tag).
   Every User gets exactly one, via the `post_save` signal; never create it by hand.
+  Users older than Profile got theirs from data migration `accounts.0003`.
 - `tags.Tag`: owner (FK User, `user.tags`), name; unique per (owner, name);
   name stored stripped + lowercase in `save()`
 
