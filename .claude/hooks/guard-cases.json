@@ -11,5 +11,14 @@
   {"cmd": "gh pr merge 5 --squash", "expect": "ask"},
   {"cmd": "cat > body.md <<EOF\n- deny `git add -f`; and git push --force is blocked on main\nEOF\ngh pr create --body-file body.md", "expect": "allow"},
   {"cmd": "cat > x.md <<'EOF'\nharmless text\nEOF\ngit push --force", "expect": "deny"},
+  {"cmd": "python3 - <<'EOF'\nprint(1)\nEOF", "expect": "deny"},
+  {"cmd": "python manage.py migrate", "expect": "deny"},
+  {"cmd": "cd x && /usr/bin/python3 -c 1", "expect": "deny"},
+  {"cmd": "pip install requests", "expect": "deny"},
+  {"cmd": "ls | pip3 install -r -", "expect": "deny"},
+  {"cmd": "uv run python manage.py migrate", "expect": "allow"},
+  {"cmd": "uv run pytest -q && uv run python manage.py shell -c 'print(1)'", "expect": "allow"},
+  {"cmd": "cat > body.md <<EOF\npython3 is not allowed\nEOF\ngh pr create --body-file body.md", "expect": "allow"},
+  {"cmd": "grep -rn python3 CLAUDE.md", "expect": "allow"},
   {"cmd": "ls -la", "expect": "allow"}
 ]

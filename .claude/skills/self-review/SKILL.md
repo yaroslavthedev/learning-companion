@@ -61,7 +61,11 @@ Closes #<n>
 - [x] <criterion>: covered by `test_...`
 
 ## How to verify manually
-1. <exact steps: URL, what to click, expected result>
+1. <exact steps: URL, what to click, expected result. Use real URLs and pks from
+   the dev DB (take them from the smoke test), never `<pk>` placeholders. For an
+   "other user → 404" step, say where the URL comes from and what the page looks
+   like: with DEBUG it's "Page not found" + "Raised by: <app>.views.<View>"
+   (the route exists, the object is scoped away), not a list of URL patterns.>
 
 ## Self-review notes
 <anything the tech lead should look at closely, known limitations>
