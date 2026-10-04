@@ -87,14 +87,14 @@ def test_login_page_renders_form(client):
     assertTemplateUsed(response, "registration/login.html")
 
 
-def test_login_with_valid_credentials_redirects_to_profile(client):
+def test_login_redirects_to_dashboard(client):
     user = UserFactory(username="alice", password=PASSWORD)
 
     response = client.post(
         reverse("login"), {"username": "alice", "password": PASSWORD}
     )
 
-    assertRedirects(response, reverse("profile"))
+    assertRedirects(response, "/dashboard/", fetch_redirect_response=False)
     assert auth.get_user(client) == user
 
 

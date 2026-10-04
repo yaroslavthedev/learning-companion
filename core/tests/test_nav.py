@@ -43,3 +43,18 @@ def test_nav_logged_out_hides_goals_link(client):
     response = client.get(reverse("home"))
 
     assertNotContains(response, f'href="{reverse("goal-list")}"')
+
+
+def test_nav_logged_in_shows_dashboard_link(client):
+    client.force_login(UserFactory())
+
+    response = client.get(reverse("home"))
+
+    assertContains(response, 'href="/dashboard/"')
+    assertContains(response, "Dashboard")
+
+
+def test_nav_logged_out_hides_dashboard_link(client):
+    response = client.get(reverse("home"))
+
+    assertNotContains(response, 'href="/dashboard/"')

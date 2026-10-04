@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · Learning Companion{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+
+  {% if not has_data %}
+    <article>
+      <p>No data yet. Set your first learning goal and log a session to see your progress here.</p>
+      <a href="{% url 'goal-create' %}" role="button">Create a goal</a>
+    </article>
+  {% else %}
+    <section>
+      <h2>Goals per status</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Goals</th><th></th></tr></thead>
+        <tbody>
+          {% for row in goals_per_status %}
+            <tr>
+              <td>{{ row.label }}</td>
+              <td>{{ row.count }}</td>
+              <td><progress value="{{ row.percent }}" max="100"></progress></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Hours per tag</h2>
+      {% if hours_per_tag %}
+        <table>
+          <thead><tr><th>Tag</th><th>Hours</th><th></th></tr></thead>
+          <tbody>
+            {% for row in hours_per_tag %}
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.hours|floatformat }} h</td>
+                <td><progress value="{{ row.percent }}" max="100"></progress></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No tagged sessions yet.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Hours per week</h2>
+      <table>
+        <thead><tr><th>Week</th><th>Hours</th><th></th></tr></thead>
+        <tbody>
+          {% for row in hours_per_week %}
+            <tr>
+              <td>{{ row.label }} <small>(from {{ row.week_start|date:"M j" }})</small></td>
+              <td>{{ row.hours|floatformat }} h</td>
+              <td><progress value="{{ row.percent }}" max="100"></progress></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% endif %}
+{% endblock %}
