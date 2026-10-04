@@ -37,6 +37,7 @@ Go through the checklist. Fix every issue before opening the PR.
 - [ ] Form `clean()` doesn't read instance relations that may not exist yet on
       create (`self.instance.<fk>` raises `RelatedObjectDoesNotExist` on an add
       form → 500); skip the check when the field itself is invalid
+- [ ] New service functions have type hints (`.claude/rules/code-style.md`)
 
 ## 3. Update CLAUDE.md
 

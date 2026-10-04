@@ -10,7 +10,8 @@ Goal: the tech lead can approve or correct the approach *before* any code exists
 
 ## Steps
 
-1. Read the ticket: `gh issue view <n> --repo yaroslavthedev/learning-companion --comments`.
+1. Read the ticket: `gh issue view <n> --repo yaroslavthedev/learning-companion --json title,body,labels,comments`
+   (the plain `--comments` output came back empty in #8).
 2. Read `CLAUDE.md` and the code the ticket touches. Check real file contents;
    don't assume what exists.
 3. If a criterion is ambiguous or conflicts with CLAUDE.md, list it under

@@ -20,6 +20,10 @@ Precondition: the plan is approved and you are on the ticket branch
    A factory for a model that doesn't exist yet goes in a temporary
    `<app>/tests/<model>_factories.py`, never in the shared `factories.py`
    (it would break collection of every existing test). Move it in green.
+   A new production module (e.g. `<app>/services.py`) is imported *inside* each
+   test in red, so each test fails with `ModuleNotFoundError` instead of the whole
+   file failing collection. Use literal URL paths only where the URL name doesn't
+   exist yet. In refactor, hoist the imports and replace literal paths with `reverse()`.
 5. `uv run ruff check .` must pass before the `test:` commit (the Stop hook
    only allows a red stop when lint is clean). Lint fixes to generated code go
    in a separate `chore:` commit first.
